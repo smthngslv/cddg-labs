@@ -46,7 +46,6 @@ void cg::renderer::rasterization_renderer::render()
 	}
 
 	cg::utils::save_resource(*render_target, settings->result_path);
-	// TODO Lab: 1.04 Implement `vertex_shader` lambda for the instance of `cg::renderer::rasterizer`
 	// TODO Lab: 1.05 Implement `pixel_shader` lambda for the instance of `cg::renderer::rasterizer`
 	// TODO Lab: 1.03 Adjust `cg::renderer::rasterization_renderer` class to consume `cg::world::model`
 }
