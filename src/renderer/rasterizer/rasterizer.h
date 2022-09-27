@@ -55,7 +55,9 @@ namespace cg::renderer
 	{
 		if (in_render_target)
 			render_target = in_render_target;
-		// TODO Lab: 1.06 Adjust `set_render_target`, and `clear_render_target` methods of `cg::renderer::rasterizer` class to consume a depth buffer
+
+		if (in_depth_buffer)
+			depth_buffer = in_depth_buffer;
 	}
 
 	template<typename VB, typename RT>
@@ -76,7 +78,13 @@ namespace cg::renderer
 				render_target->item(i) = in_clear_value;
 			}
 		}
-		// TODO Lab: 1.06 Adjust `set_render_target`, and `clear_render_target` methods of `cg::renderer::rasterizer` class to consume a depth buffer
+		if (depth_buffer)
+		{
+			for (size_t i = 0; i < depth_buffer->get_number_of_elements(); i++)
+			{
+				depth_buffer->item(i) = in_depth;
+			}
+		}
 	}
 
 	template<typename VB, typename RT>
@@ -128,6 +136,8 @@ namespace cg::renderer
 			float2 bounding_box_end = round(clamp(
 					max_vertex, float2{0, 0}, float2{static_cast<float>(width-1), static_cast<float>(height-1)}));
 
+			float edge = edge_function(vertex_a, vertex_b, vertex_c);
+
 			for (float x = bounding_box_begin.x; x <= bounding_box_end.x; x += 1.f) {
 				for (float y = bounding_box_begin.y; y <= bounding_box_end.y; y += 1.f) {
 					float2 point {x, y};
@@ -136,16 +146,25 @@ namespace cg::renderer
 					float edge2 = edge_function(vertex_c, vertex_a, point);
 
 					if (edge0 >= 0.f && edge1 >= 0.f && edge2 >= 0.f) {
+						float u = edge1 / edge;
+						float v = edge2 / edge;
+						float w = edge0 / edge;
+						float depth = u * vertices[0].z + v * vertices[1].z + w * vertices[2].z;
+
 						size_t u_x = static_cast<size_t>(x);
 						size_t u_y = static_cast<size_t>(y);
 
-						auto pixel_result = pixel_shader(vertices[0], 0.f);
-						render_target->item(u_x, u_y) = RT::from_color(pixel_result);
+						if (depth_test(depth, u_x, u_y)){
+							auto pixel_result = pixel_shader(vertices[0], 0.f);
+							render_target->item(u_x, u_y) = RT::from_color(pixel_result);
+
+							if (depth_buffer)
+								depth_buffer->item(u_x, u_y) = depth;
+						}
 					}
 				}
 			}
 		}
-		// TODO Lab: 1.06 Add `Depth test` stage to `draw` method of `cg::renderer::rasterizer`
 	}
 
 	template<typename VB, typename RT>
@@ -158,7 +177,6 @@ namespace cg::renderer
 	template<typename VB, typename RT>
 	inline bool rasterizer<VB, RT>::depth_test(float z, size_t x, size_t y)
 	{
-		// TODO Lab: 1.06 Implement `depth_test` function of `cg::renderer::rasterizer` class
 		if (!depth_buffer)
 		{
 			return true;
