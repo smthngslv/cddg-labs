@@ -489,17 +489,17 @@ void cg::renderer::dx12_renderer::populate_command_list()
 					));
 
 	command_list->SetGraphicsRootSignature(root_signature.Get());
-	ID3D12DescriptorHeap* heaps[] = { cbv_srv_heap.Get() };
+	ID3D12DescriptorHeap* heaps[] = { cbv_srv_heap.get() };
 	command_list->SetDescriptorHeaps(_countof(heaps), heaps);
 	command_list->SetGraphicsRootDescriptorTable(
-			0, cbv_srv_heap.GetGPUDescriptorHandleForHeapStart()
+			0, cbv_srv_heap.get_gpu_descriptor_handle()
 	);
 	command_list->RSSetViewports(1, &view_port);
 	command_list->RSSetScissorRects(1, &scissor_rect);
 	command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	CD3DX12_RESOURCE_BARRIER begin_barriers[] = {
-			&CD3DX12_RESOURCE_BARRIER::Transition(
+			CD3DX12_RESOURCE_BARRIER::Transition(
 					render_targets[frame_index].Get(),
 					D3D12_RESOURCE_STATE_PRESENT,
 					D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -527,7 +527,7 @@ void cg::renderer::dx12_renderer::populate_command_list()
 	}
 
 	CD3DX12_RESOURCE_BARRIER end_barriers[] = {
-			&CD3DX12_RESOURCE_BARRIER::Transition(
+			CD3DX12_RESOURCE_BARRIER::Transition(
 					render_targets[frame_index].Get(),
 					D3D12_RESOURCE_STATE_RENDER_TARGET,
 					D3D12_RESOURCE_STATE_PRESENT

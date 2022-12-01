@@ -104,7 +104,7 @@ const DirectX::XMMATRIX cg::world::camera::get_dxm_projection_matrix() const
 
 const DirectX::XMMATRIX camera::get_dxm_mvp_matrix() const
 {
-	return get_dxm_view_matrix() * get_dxm_mvp_matrix();
+	return get_dxm_view_matrix() * get_dxm_projection_matrix();
 }
 #endif
 
