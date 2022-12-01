@@ -159,7 +159,7 @@ void cg::renderer::dx12_renderer::create_swap_chain(ComPtr<IDXGIFactory4>& dxgi_
 
 void cg::renderer::dx12_renderer::create_render_target_views()
 {
-	rtv_heap.create_heap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, frame_number)
+	rtv_heap.create_heap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, frame_number);
 
 	for (UINT i = 0; i < frame_number; ++i) {
 		THROW_IF_FAILED(
@@ -167,7 +167,8 @@ void cg::renderer::dx12_renderer::create_render_target_views()
 		);
 		device->CreateRenderTargetView(render_targets[i].Get(), nullptr, rtv_heap.get_cpu_descriptor_handle(i));
 
-		std::wstring name(L"Render target ") + std::to_wstring(i);
+		std::wstring name(L"Render target ");
+		name += std::to_wstring(i);
 		render_targets[i]->SetName(name.c_str());
 	}
 }
@@ -181,7 +182,7 @@ void cg::renderer::dx12_renderer::create_command_allocators()
 	for (auto& command_allocator : command_allocators) {
 		THROW_IF_FAILED(device->CreateCommandAllocator(
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
-				IID_PPV_ARGS(&command_allocators)
+				IID_PPV_ARGS(&command_allocator)
 						));
 	}
 }
@@ -345,11 +346,11 @@ void cg::renderer::dx12_renderer::create_resource_on_upload_heap(ComPtr<ID3D12Re
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(
-					vertex_buffer_size
+					size
 					),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&vertex_buffers[i])
+			IID_PPV_ARGS(&resource)
 					));
 
 	if (!name.empty()){
@@ -465,7 +466,7 @@ void cg::renderer::dx12_renderer::load_assets()
 
 	create_constant_buffer_view(constant_buffer, cbv_srv_heap.get_cpu_descriptor_handle(0));
 
-	THROW_IF_FAILED(command_list->Close();)
+	THROW_IF_FAILED(command_list->Close());
 
 	THROW_IF_FAILED(device->CreateFence(
 			0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)
@@ -491,7 +492,7 @@ void cg::renderer::dx12_renderer::populate_command_list()
 	ID3D12DescriptorHeap* heaps[] = { cbv_srv_heap.Get() };
 	command_list->SetDescriptorHeaps(_countof(heaps), heaps);
 	command_list->SetGraphicsRootDescriptorTable(
-			0, cbv_srv_heap->GetGPUDescriptorHandleForHeapStart()
+			0, cbv_srv_heap.GetGPUDescriptorHandleForHeapStart()
 	);
 	command_list->RSSetViewports(1, &view_port);
 	command_list->RSSetScissorRects(1, &scissor_rect);
