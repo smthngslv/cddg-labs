@@ -350,7 +350,7 @@ void cg::renderer::dx12_renderer::create_resource_on_upload_heap(ComPtr<ID3D12Re
 					),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(resource)
+			IID_PPV_ARGS(&resource)
 					));
 
 	if (!name.empty()){
@@ -510,11 +510,11 @@ void cg::renderer::dx12_renderer::populate_command_list()
 			_countof(begin_barriers), begin_barriers
 	);
 
-	command_list->OMSetRenderTargets(1, rtv_heap.get_cpu_descriptor_handle(frame_index), FALSE, nullptr);
+	command_list->OMSetRenderTargets(1, &rtv_heap.get_cpu_descriptor_handle(frame_index), FALSE, nullptr);
 
 	const float clear_color[] = { 0.f, 0.f, 0.f, 1.0f };
 	command_list->ClearRenderTargetView(
-			&rtv_heap.get_cpu_descriptor_handle(frame_index), clear_color, 0, nullptr
+			rtv_heap.get_cpu_descriptor_handle(frame_index), clear_color, 0, nullptr
 	);
 
 	for (size_t s = 0; s < model->get_vertex_buffers().size(); ++s) {
