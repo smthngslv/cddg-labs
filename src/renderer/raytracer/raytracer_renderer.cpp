@@ -49,7 +49,9 @@ void cg::renderer::ray_tracing_renderer::render()
 		return payload;
 	};
 	shadow_raytracer->miss_shader = [](const ray& ray) {
-		return payload{.t = -1.f};
+		payload payload{};
+		payload.t = -1.0f;
+		return payload;
 	};
 
 	raytracer->closest_hit_shader = [&](const ray& ray, payload& payload, const triangle<cg::vertex>& triangle, size_t depth) {
